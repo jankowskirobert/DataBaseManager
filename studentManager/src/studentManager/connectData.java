@@ -12,10 +12,13 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.mysql.jdbc.JDBC4ResultSet;
+
 public class connectData {
 	String ip;
 	private Statement statement;
 	private Connection connect;
+
 	public connectData(String ip, int port, String login, String pass,
 			String database) {
 		setIp(ip);
@@ -30,9 +33,11 @@ public class connectData {
 			e.printStackTrace();
 		}
 	}
+
 	public String getIp() {
 		return ip;
 	}
+
 	public void setIp(String ip) {
 		final String PATTERN_ = "^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
 				+ "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
@@ -47,16 +52,15 @@ public class connectData {
 			System.err.println("IP has a wrong format");
 		}
 	}
+
 	public ArrayList<String> getTables() {
 		ArrayList<String> data = new ArrayList<String>();
 		DatabaseMetaData md;
 		try {
 			md = connect.getMetaData();
 			ResultSet rs = md.getTables(null, null, "%", null);
-
 			while (rs.next()) {
 				String tmp = rs.getString(3);
-				// System.out.println(""+tmp);
 				data.add(tmp);
 			}
 			return data;
@@ -64,8 +68,8 @@ public class connectData {
 			e.printStackTrace();
 			return null;
 		}
-
 	}
+
 	public List<ColsInfo> getIn(String tableName) {
 		List<ColsInfo> listOfLists = new ArrayList<ColsInfo>();
 		try {
@@ -76,7 +80,7 @@ public class connectData {
 			st = connect.createStatement();
 			ResultSet rs = st.executeQuery("SELECT * FROM " + tableName);
 			ResultSetMetaData rsMetaData = rs.getMetaData();
-			int i = 0;
+			int i = 1;
 			while (rsColumns.next()) {
 				ColsInfo tmp = new ColsInfo();
 				tmp.setColTitle(rsColumns.getString("COLUMN_NAME"));
@@ -84,18 +88,9 @@ public class connectData {
 				tmp.setColSize(rsColumns.getInt("COLUMN_SIZE"));
 				tmp.setColPosition(rsColumns.getInt("ORDINAL_POSITION"));
 				tmp.setIsNullable(rsColumns.getInt("NULLABLE"));
-//				tmp.setAutoIncrement(autoIncrement);
-//				System.out.println("column name=" + tmp.getColTitle());
-//				System.out.println("type=" + tmp.getColType());
-//				System.out.println("size=" + tmp.getColSize());
-//				if (nullable == DatabaseMetaData.columnNullable) {
-//					System.out.println("nullable is true");
-//				} else {
-//					System.out.println("nullable is false");
-//				}
-//				System.out.println("position " + position);
-				listOfLists.add(tmp);
+				tmp.setAutoIncrement(rsMetaData.isAutoIncrement(i));
 				i++;
+				listOfLists.add(tmp);
 			}
 			return listOfLists;
 		} catch (SQLException e) {
@@ -103,48 +98,60 @@ public class connectData {
 			return null;
 		}
 	}
-	public boolean isAutoIncresse(String tableName) {
-		boolean itis = false;
-		Statement st;
+
+	public List<ArrayList<Object>> getDataFromDB(String tableName) {
+		List<ArrayList<Object>> dataDB = new ArrayList<ArrayList<Object>>();
+		ResultSet res;
 		try {
-			st = connect.createStatement();
-			ResultSet rs = st.executeQuery("SELECT * FROM survey");
-			ResultSetMetaData rsMetaData = rs.getMetaData();
+			int i =0;
+			res = statement.executeQuery("SELECT * FROM  " + tableName);
+			ResultSetMetaData rsMetaData = res.getMetaData();
 			int numberOfColumns = rsMetaData.getColumnCount();
-			System.out.println("resultSet MetaData column Count="
-					+ numberOfColumns);
-			for (int i = 1; i <= numberOfColumns; i++) {
-				System.out.println("column MetaData ");
-				System.out.println("column number " + i);
-				// indicates whether the designated column is
-				// automatically numbered, thus read-only.
-				System.out.println(rsMetaData.isAutoIncrement(i));
+			for (int u = 0; u < numberOfColumns; u++) {
+				dataDB.add(new ArrayList<Object>());
 			}
-			return itis;
+			while (res.next()) {
+				for (int j = 1; j <= numberOfColumns/* cols size */; j++) {
+					dataDB.get(j - 1).add("" + res.getString(j));
+				}
+				i++;
+			}
+			return dataDB;
 		} catch (SQLException e) {
 			e.printStackTrace();
-			return itis;
+			return null;
+		} catch (NullPointerException k) {
+			k.printStackTrace();
 		}
+		return null;
+
 	}
-	public String prepareStat(ArrayList<String> x){
-		String y = null;
-		for(int i = 0; i<x.size();i++){
-			y= x.get(i) + ",";
+
+	public String prepareToInsert(List<ColsInfo> list) {
+		String y = "";
+		for (int i = 0; i < list.size(); i++) {
+
+			if (list.get(i).isAutoIncrement() == false) {
+				y += list.get(i).getColTitle() + ",";
+			}
+
 		}
-		y = y.substring(0, y.length()-1);
-		System.out.println(y);
+		y = y.substring(0, y.length() - 1);
+		// System.out.println(y);
 		return y;
 	}
-	public void addVal(String what, String where/*use prepareStat function */){
+
+	public void insertInto(String what, String where/* use prepareStat function */) {
 		Statement stmt;
 		try {
-			
+
 			stmt = connect.createStatement();
-		    String sql = "INSERT INTO users (where) VALUES (what)";
-		    stmt.execute(sql);
+			String sql = "INSERT INTO stud (" + where + ") VALUES (" + what
+					+ ")";
+			stmt.execute(sql);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}}
+		}
+	}
 }
-
