@@ -37,7 +37,7 @@ public class mainManager extends JFrame  {
 			System.out.println("\n");
 		}
 	
-	}
+	} 
 }
 class tabElka  implements TableModel{
 	public tabElka(){
