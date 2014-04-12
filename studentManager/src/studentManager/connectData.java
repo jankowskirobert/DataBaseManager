@@ -126,7 +126,6 @@ public class connectData {
 		return null;
 
 	}
-
 	public String prepareToInsert(List<ColsInfo> list) {
 		String y = "";
 		for (int i = 0; i < list.size(); i++) {
