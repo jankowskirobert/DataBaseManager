@@ -1,17 +1,10 @@
 package studentManager;
 
-import java.sql.DatabaseMetaData;
-import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.ListIterator;
-import java.util.Scanner;
 
 import javax.swing.JFrame;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
-import javax.swing.event.TableModelListener;
-import javax.swing.table.TableModel;
 
 
 
@@ -34,7 +27,7 @@ public class mainManager extends JFrame  {
 	
 						System.out.print(test.getDataFromDB("stud").get(x).get(c).toString()+" ");
 			}
-			System.out.println("\n");
+			System.out.println(" \n");
 		}
 	}
 }

@@ -12,8 +12,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.mysql.jdbc.JDBC4ResultSet;
-
 public class connectData {
 	String ip;
 	private Statement statement;
