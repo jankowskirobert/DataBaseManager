@@ -1,12 +1,12 @@
 package studentManager;
 
 public class ColsInfo{
-	String colTitle;
-	String colType;
-	boolean autoIncrement;
-	int colSize;
-	int isNullable;
-	int colPosition;
+	private String colTitle;
+	private String colType;
+	private boolean autoIncrement;
+	private int colSize;
+	private int isNullable;
+	private int colPosition;
 	public String getColTitle() {
 		return colTitle;
 	}
